@@ -17,7 +17,9 @@ const initDb = async () => {
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        security_token TEXT NOT NULL,
+        security_token TEXT,
+        registration_token VARCHAR(255) UNIQUE,
+        is_active BOOLEAN DEFAULT FALSE,
         last_check_in TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );

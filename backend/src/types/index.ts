@@ -10,6 +10,8 @@ export interface Client {
   name: string;
   ownerId: number;
   securityToken: string; // public key
+  registrationToken?: string;
+  isActive: boolean;
   lastCheckIn?: Date;
   createdAt: Date;
 }
