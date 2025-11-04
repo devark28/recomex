@@ -1,6 +1,8 @@
-// @ts-ignore
-import Gio from 'gi://Gio';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { ActionPayload } from '../types';
+
+const execAsync = promisify(exec);
 
 export class MediaModule {
   private enabled: boolean = true;
@@ -19,65 +21,17 @@ export class MediaModule {
       throw new Error('Invalid media action payload');
     }
 
-    try {
-      await this.callMpris(this.mapAction(mediaAction.action));
-    } catch (error) {
-      throw new Error(`Media action failed: ${error}`);
-    }
+    const command = this.mapAction(mediaAction.action);
+    await execAsync(command);
   }
 
   private mapAction(action: string): string {
     switch (action) {
-      case 'next': return 'Next';
-      case 'previous': return 'Previous';
-      case 'play_pause': return 'PlayPause';
-      case 'stop': return 'Stop';
+      case 'next': return 'playerctl next';
+      case 'previous': return 'playerctl previous';
+      case 'play_pause': return 'playerctl play-pause';
+      case 'stop': return 'playerctl stop';
       default: throw new Error(`Unknown media action: ${action}`);
     }
-  }
-
-  private async callMpris(method: string): Promise<void> {
-    const bus = Gio.DBus.session;
-
-    // Get available MPRIS players
-    const namesResult = bus.call_sync(
-      'org.freedesktop.DBus',
-      '/org/freedesktop/DBus',
-      'org.freedesktop.DBus',
-      'ListNames',
-      null,
-      null,
-      Gio.DBusCallFlags.NONE,
-      -1,
-      null
-    );
-
-    const [names] = namesResult.deepUnpack() as [string[]];
-    const mprisNames = names.filter((n: string) => n.startsWith('org.mpris.MediaPlayer2.'));
-
-    if (mprisNames.length === 0) {
-      throw new Error('No MPRIS players found');
-    }
-
-    // Use the first available player
-    const playerName = mprisNames[0];
-
-    const proxy = Gio.DBusProxy.new_sync(
-      bus,
-      Gio.DBusProxyFlags.DO_NOT_CONNECT_SIGNALS,
-      null,
-      playerName,
-      '/org/mpris/MediaPlayer2',
-      'org.mpris.MediaPlayer2.Player',
-      null
-    );
-
-    proxy.call_sync(
-      method,
-      null,
-      Gio.DBusCallFlags.NO_AUTO_START,
-      -1,
-      null
-    );
   }
 }

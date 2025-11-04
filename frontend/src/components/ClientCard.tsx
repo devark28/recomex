@@ -7,12 +7,12 @@ interface ClientCardProps {
 }
 
 export default function ClientCard({ client }: ClientCardProps) {
-  const isOnline = client.lastCheckIn && 
-    new Date().getTime() - new Date(client.lastCheckIn).getTime() < 60000; // 1 minute
+  const isOnline = client.lastCheck_in &&
+    new Date().getTime() - new Date(client.lastCheck_in).getTime() < 60000; // 1 minute
 
   const sendAction = async (type: string, payload: ActionPayload) => {
     try {
-      const encryptedPayload = await CryptoService.encryptPayload(payload, client.securityToken);
+      const encryptedPayload = await CryptoService.encryptPayload(payload, client.security_token);
       await apiService.sendAction(client.id, type, encryptedPayload);
       alert('Action sent successfully!');
     } catch (error) {

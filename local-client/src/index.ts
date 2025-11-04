@@ -1,22 +1,20 @@
-// @ts-ignore
-import GLib from 'gi://GLib';
 import { ClientConfig, Action } from './types';
-import { CryptoService } from './services/crypto';
+import { CryptoService } from './services/cryptoService';
 import { ApiService } from './services/apiService';
 import { ConfigService } from './services/configService';
 import { MediaModule } from './modules/mediaModule';
 import { BrightnessModule } from './modules/brightnessModule';
 import { VolumeModule } from './modules/volumeModule';
+import { hostname } from 'os';
 
 class RemoteControlClient {
   private config: ClientConfig | null = null;
-  private cryptoService?: CryptoService;
   private apiService?: ApiService;
   private configService: ConfigService;
   private mediaModule: MediaModule;
   private brightnessModule: BrightnessModule;
   private volumeModule: VolumeModule;
-  private pollTimer?: any;
+  private pollTimer?: NodeJS.Timeout;
 
   constructor() {
     this.configService = new ConfigService();
@@ -27,17 +25,20 @@ class RemoteControlClient {
 
   async register(token: string): Promise<void> {
     try {
-      console.log('Registering client with token:', token);
-      
+      console.log('🔑 Generating RSA key pair...');
       const keyPair = await CryptoService.generateKeyPair();
-      const hostname = GLib.get_host_name();
       
+      console.log('📡 Registering client with server...');
       const tempApiService = new ApiService('http://localhost:3000', 0);
-      const response = await tempApiService.registerClient(token, keyPair.publicKey, hostname);
+      console.log(token, keyPair.publicKey, hostname())
+      const response = await tempApiService.registerClient(
+        token,
+        keyPair.publicKey, 
+        hostname()
+      );
 
       this.config = {
         clientId: response.clientId,
-        privateKey: keyPair.privateKey,
         serverUrl: 'http://localhost:3000',
         pollInterval: 5000,
         enabledModules: {
@@ -47,30 +48,31 @@ class RemoteControlClient {
         }
       };
 
-      if (this.configService.save(this.config)) {
-        console.log('✓ Client registered successfully!');
-        console.log(`  Client ID: ${this.config.clientId}`);
+      if (await this.configService.save(this.config)) {
+        console.log('✅ Client registered successfully!');
+        console.log(`   Client ID: ${this.config.clientId}`);
+        console.log(`   Keys saved to: ~/.ssh/recomex*`);
       } else {
         throw new Error('Failed to save configuration');
       }
     } catch (error) {
-      console.error('✗ Registration failed:', error);
+      console.error('❌ Registration failed:', (error as Error).message);
       throw error;
     }
   }
 
-  start() {
-    this.config = this.configService.load();
+  async start(): Promise<void> {
+    this.config = await this.configService.load();
     
     if (!this.config) {
-      console.error('✗ Client not registered. Run: gjs dist/index.js register <token>');
+      console.error('❌ Client not registered. Run: npm run register -- <token>');
       return;
     }
 
-    console.log('✓ Starting remote control client...');
-    console.log(`  Client ID: ${this.config.clientId}`);
+    console.log('🚀 Starting remote control client...');
+    console.log(`   Client ID: ${this.config.clientId}`);
+    console.log(`   Server: ${this.config.serverUrl}`);
     
-    this.cryptoService = new CryptoService(this.config.privateKey);
     this.apiService = new ApiService(this.config.serverUrl, this.config.clientId);
     
     // Configure modules
@@ -80,68 +82,64 @@ class RemoteControlClient {
 
     this.startPolling();
     
-    const loop = GLib.MainLoop.new(null, false);
-    
-    GLib.unix_signal_add(GLib.PRIORITY_DEFAULT, 2, () => {
-      console.log('\n✓ Shutting down gracefully...');
+    // Handle graceful shutdown
+    process.on('SIGINT', () => {
+      console.log('\n🛑 Shutting down gracefully...');
       this.stop();
-      loop.quit();
-      return false;
+      process.exit(0);
     });
-    
-    loop.run();
+
+    process.on('SIGTERM', () => {
+      console.log('\n🛑 Shutting down gracefully...');
+      this.stop();
+      process.exit(0);
+    });
+
+    console.log('✅ Client started. Press Ctrl+C to stop.');
   }
 
-  stop() {
-    if (this.pollTimer) {
-      GLib.source_remove(this.pollTimer);
-      this.pollTimer = null;
-    }
-  }
-
-  private startPolling() {
+  private startPolling(): void {
     if (!this.config || !this.apiService) return;
     
-    this.pollTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.config.pollInterval, () => {
-      this.pollActions().catch(error => {
-        if (!error.message.includes('HTTP')) {
-          console.error('Polling error:', error);
-        }
-      });
-      return GLib.SOURCE_CONTINUE;
-    });
-    
-    console.log('✓ Polling started (interval: 5s)');
-  }
-
-  private async pollActions(): Promise<void> {
-    if (!this.apiService) return;
-    
-    try {
-      const actions = await this.apiService.pollActions();
-      
-      if (actions.length > 0) {
-        console.log(`Received ${actions.length} action(s)`);
+    this.pollTimer = setInterval(async () => {
+      try {
+        const actions = await this.apiService!.pollActions();
         
-        for (const action of actions) {
-          await this.processAction(action);
+        if (actions.length > 0) {
+          console.log(`📨 Received ${actions.length} action(s)`);
+          
+          for (const action of actions) {
+            await this.processAction(action);
+          }
+        }
+      } catch (error) {
+        const err = error as Error;
+        if (!err.message.includes('HTTP')) {
+          console.error('⚠️  Polling error:', err.message);
         }
       }
-    } catch (error) {
-      throw error;
+    }, this.config.pollInterval);
+    
+    console.log('🔄 Polling started (interval: 5s)');
+  }
+
+  private stop(): void {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = undefined;
     }
   }
 
   private async processAction(action: Action): Promise<void> {
-    if (!this.cryptoService || !this.apiService) return;
+    if (!this.config || !this.apiService) return;
     
     try {
-      console.log(`Processing ${action.type} action (ID: ${action.id})`);
+      console.log(`⚡ Processing ${action.type} action (ID: ${action.id})`);
       
-      // Decrypt the payload
-      const payload = await this.cryptoService.decryptPayload(action.payload);
-
-      // Execute the action based on type
+      // Decrypt payload
+      const payload = await CryptoService.decryptPayload(action.payload);
+      
+      // Execute action
       switch (action.type) {
         case 'media':
           await this.mediaModule.executeAction(payload);
@@ -155,31 +153,31 @@ class RemoteControlClient {
         default:
           throw new Error(`Unknown action type: ${action.type}`);
       }
-
-      console.log(`✓ ${action.type} action completed`);
+      
+      console.log(`✅ ${action.type} action completed`);
     } catch (error) {
-      console.error(`✗ Action failed: ${(error as Error)?.message}`);
-      await this.apiService.reportFailure(action.id, (error as Error)?.message);
+      const err = error as Error;
+      console.error(`❌ Action failed: ${err.message}`);
+      await this.apiService.reportFailure(action.id, err.message);
     }
   }
 }
 
 // CLI Interface
 function printUsage() {
-  console.log('Recomex Local Client');
+  console.log('🎮 Recomex Local Client');
   console.log('');
   console.log('Usage:');
-  console.log('  gjs dist/index.js register <token>  - Register client with server');
-  console.log('  gjs dist/index.js start             - Start the client daemon');
+  console.log('  npm run register -- <token>  Register client with server');
+  console.log('  npm start                    Start the client daemon');
   console.log('');
   console.log('Examples:');
-  console.log('  gjs dist/index.js register abc123');
-  console.log('  gjs dist/index.js start');
+  console.log('  npm run register -- abc123');
+  console.log('  npm start');
 }
 
 async function main() {
-  // @ts-ignore - ARGV is available in GJS
-  const args = ARGV;
+  const args = process.argv.slice(2);
   
   if (args.length === 0) {
     printUsage();
@@ -192,24 +190,25 @@ async function main() {
     switch (args[0]) {
       case 'register':
         if (args.length < 2) {
-          console.error('✗ Error: Registration token required');
-          console.log('Usage: gjs dist/index.js register <token>');
+          console.error('❌ Error: Registration token required');
+          console.log('Usage: npm run register -- <token>');
           return;
         }
         await client.register(args[1]);
         break;
         
       case 'start':
-        client.start();
+        await client.start();
         break;
         
       default:
-        console.error('✗ Unknown command:', args[0]);
+        console.error('❌ Unknown command:', args[0]);
         printUsage();
         break;
     }
   } catch (error) {
-    console.error('✗ Error:', (error as Error)?.message);
+    console.error('❌ Error:', (error as Error).message);
+    process.exit(1);
   }
 }
 

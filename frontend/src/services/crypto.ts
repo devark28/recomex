@@ -1,10 +1,11 @@
 export class CryptoService {
   static async encryptPayload(payload: object, publicKey: string): Promise<string> {
+    console.log(JSON.stringify({payload, publicKey}))
     try {
       // Import the public key
       const keyData = await crypto.subtle.importKey(
         'spki',
-        this.base64ToArrayBuffer(publicKey),
+        this.base64ToArrayBuffer(publicKey.replace(/-----BEGIN PUBLIC KEY-----/, '').replace(/-----END PUBLIC KEY-----/, '').replace(/\s+/g, '')),
         {
           name: 'RSA-OAEP',
           hash: 'SHA-256',

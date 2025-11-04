@@ -4,9 +4,9 @@ import { authenticateToken, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
-router.use(authenticateToken);
+// router.use(authenticateToken);
 
-router.post('/', async (req: AuthRequest, res) => {
+router.post('/', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const { name } = req.body;
         const client = await ClientService.createClient(name, req.user!.userId);
@@ -28,7 +28,7 @@ router.post('/register', async (req, res) => {
     }
 });
 
-router.get('/', async (req: AuthRequest, res) => {
+router.get('/', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const clients = await ClientService.getClientsByOwner(req.user!.userId);
         res.json(clients);
@@ -37,7 +37,7 @@ router.get('/', async (req: AuthRequest, res) => {
     }
 });
 
-router.delete('/:id', async (req: AuthRequest, res) => {
+router.delete('/:id', authenticateToken, async (req: AuthRequest, res) => {
     try {
         const success = await ClientService.deleteClient(
             parseInt(req.params.id),

@@ -1,41 +1,35 @@
-// @ts-ignore
-import Soup from 'gi://Soup';
 import { Action } from '../types';
 
 export class ApiService {
   private serverUrl: string;
   private clientId: number;
-  private session: any;
 
   constructor(serverUrl: string, clientId: number) {
     this.serverUrl = serverUrl;
     this.clientId = clientId;
-    this.session = new Soup.Session();
   }
 
-  async request(method: string, path: string, data?: any): Promise<any> {
-    return new Promise((resolve, reject) => {
-      const message = Soup.Message.new(method, this.serverUrl + path);
-      
-      if (data) {
-        const body = JSON.stringify(data);
-        message.set_request('application/json', Soup.MemoryUse.COPY, body);
-      }
+  private async request(method: string, path: string, data?: any): Promise<any> {
+    const url = `${this.serverUrl}${path}`;
+    const options: any = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
 
-      this.session.queue_message(message, () => {
-        if (message.status_code >= 200 && message.status_code < 300) {
-          try {
-            const response = message.response_body.data ? 
-              JSON.parse(message.response_body.data) : {};
-            resolve(response);
-          } catch (e) {
-            resolve({});
-          }
-        } else {
-          reject(new Error(`HTTP ${message.status_code}: ${message.reason_phrase}`));
-        }
-      });
-    });
+    if (data) {
+      options.body = JSON.stringify(data);
+    }
+
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      console.log(response)
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
   }
 
   async pollActions(): Promise<Action[]> {

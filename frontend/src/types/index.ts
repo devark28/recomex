@@ -1,10 +1,10 @@
 export interface Client {
   id: number;
   name: string;
-  ownerId: number;
-  securityToken: string;
-  lastCheckIn?: string;
-  createdAt: string;
+  owner_id: number;
+  security_token: string;
+  lastCheck_in?: string;
+  created_at: string;
 }
 
 export interface ActionPayload {

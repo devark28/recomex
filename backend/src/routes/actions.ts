@@ -12,7 +12,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res) => {
     
     // Verify client ownership
     const client = await ClientService.getClientById(clientId);
-    if (!client || client.ownerId !== req.user!.userId) {
+    if (!client || client.owner_id !== req.user!.userId) {
       return res.status(403).json({ error: 'Access denied' });
     }
     

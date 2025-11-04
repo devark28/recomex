@@ -25,7 +25,6 @@ export interface Action {
 export interface ClientConfig {
   clientId: number;
   serverUrl: string;
-  privateKey: string;
   pollInterval: number;
   enabledModules: {
     media: boolean;

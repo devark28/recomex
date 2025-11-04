@@ -1,17 +1,17 @@
 {
-  "name": "local-client",
+  "name": "recomex-local-client",
   "version": "1.0.0",
   "description": "Local client for GNOME remote control",
   "main": "dist/index.js",
   "scripts": {
-    "register": "gjs client.js register",
-    "start": "gjs client.js start"
-  },
-  "dependencies": {
-    "@girs/gjs": "^4.0.0-beta.19",
-    "@girs/gnome-shell": "^47.0.0"
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "register": "node dist/index.js register",
+    "start": "node dist/index.js start",
+    "setup": "./setup.sh"
   },
   "devDependencies": {
+    "@types/node": "^20.10.0",
     "typescript": "^5.3.3"
   }
 }
