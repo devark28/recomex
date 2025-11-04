@@ -7,8 +7,8 @@ interface ClientCardProps {
 }
 
 export default function ClientCard({ client }: ClientCardProps) {
-  const isOnline = client.lastCheck_in &&
-    new Date().getTime() - new Date(client.lastCheck_in).getTime() < 60000; // 1 minute
+  const isOnline = client.last_check_in &&
+    new Date().getTime() - new Date(client.last_check_in).getTime() < 60000; // 1 minute
 
   const sendAction = async (type: string, payload: ActionPayload) => {
     try {

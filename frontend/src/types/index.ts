@@ -3,7 +3,7 @@ export interface Client {
   name: string;
   owner_id: number;
   security_token: string;
-  lastCheck_in?: string;
+  last_check_in?: string;
   created_at: string;
 }
 
