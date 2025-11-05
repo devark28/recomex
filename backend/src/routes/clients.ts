@@ -20,7 +20,6 @@ router.post('/register', async (req, res) => {
     try {
         const { token, publicKey, name } = req.body;
         const client = await ClientService.activateClient(token, publicKey, name);
-        console.log(client)
         res.json({ clientId: client.id, message: 'Client activated successfully' });
     } catch (error) {
         console.log(error)

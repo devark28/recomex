@@ -30,7 +30,6 @@ class RemoteControlClient {
       
       console.log('📡 Registering client with server...');
       const tempApiService = new ApiService('http://localhost:3000', 0);
-      console.log(token, keyPair.publicKey, hostname())
       const response = await tempApiService.registerClient(
         token,
         keyPair.publicKey, 

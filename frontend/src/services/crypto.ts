@@ -1,6 +1,5 @@
 export class CryptoService {
   static async encryptPayload(payload: object, publicKey: string): Promise<string> {
-    console.log(JSON.stringify({payload, publicKey}))
     try {
       // Import the public key
       const keyData = await crypto.subtle.importKey(

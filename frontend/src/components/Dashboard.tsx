@@ -31,7 +31,6 @@ export default function Dashboard({onLogout}: DashboardProps) {
 
         try {
             const client = await apiService.createClient(newClientName);
-            console.log(client)
             setNewClientName('');
             setShowAddClient(false);
             setShowToken(client.registration_token);
