@@ -18,5 +18,5 @@ app.use('/api/clients', clientRoutes);
 app.use('/api/actions', actionRoutes);
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });

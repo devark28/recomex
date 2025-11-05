@@ -8,7 +8,7 @@ class ApiService {
         const config: RequestInit = {
             headers: {
                 'Content-Type': 'application/json',
-                ...(this.token && { Authorization: `Bearer ${this.token}` }),
+                ...(this.token && {Authorization: `Bearer ${this.token}`}),
             },
             ...options,
         };
@@ -25,7 +25,7 @@ class ApiService {
     async login(username: string, password: string) {
         const data = await this.request('/auth/login', {
             method: 'POST',
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({username, password}),
         });
 
         this.token = data.token;
@@ -36,7 +36,7 @@ class ApiService {
     async register(username: string, password: string) {
         return this.request('/auth/register', {
             method: 'POST',
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({username, password}),
         });
     }
 
@@ -47,14 +47,14 @@ class ApiService {
     async createClient(name: string) {
         return this.request('/clients', {
             method: 'POST',
-            body: JSON.stringify({ name }),
+            body: JSON.stringify({name}),
         });
     }
 
     async sendAction(clientId: number, type: string, payload: string, dueAt?: string) {
         return this.request('/actions', {
             method: 'POST',
-            body: JSON.stringify({ clientId, type, payload, dueAt }),
+            body: JSON.stringify({clientId, type, payload, dueAt}),
         });
     }
 

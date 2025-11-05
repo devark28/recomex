@@ -1,5 +1,5 @@
 import pool from '../db/connection';
-import { Client } from '../types';
+import {Client} from '../types';
 
 export class ClientService {
     static async createClient(name: string, ownerId: number): Promise<Client> {
