@@ -1,8 +1,8 @@
 export interface User {
   id: number;
   username: string;
-  passwordHash: string;
-  createdAt: Date;
+  password_hash: string;
+  created_at: Date;
 }
 
 export interface Client {
@@ -18,13 +18,13 @@ export interface Client {
 
 export interface Action {
   id: number;
-  clientId: number;
+  client_id: number;
   type: 'media' | 'brightness' | 'volume';
   payload: string; // encrypted
-  dueAt?: Date;
-  isSent: boolean;
-  failureReason?: string;
-  createdAt: Date;
+  due_at?: Date;
+  is_sent: boolean;
+  failure_reason?: string;
+  created_at: Date;
 }
 
 export interface ActionPayload {

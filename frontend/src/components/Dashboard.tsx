@@ -14,7 +14,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
     const [showToken, setShowToken] = useState<string | null>(null);
 
     useEffect(() => {
-        loadClients();
+        void loadClients();
     }, []);
 
     const loadClients = async () => {
@@ -34,7 +34,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
             setNewClientName('');
             setShowAddClient(false);
             setShowToken(client.registration_token);
-            loadClients();
+            void loadClients();
         } catch (error) {
             alert('Failed to add client');
         }
@@ -69,12 +69,12 @@ export default function Dashboard({onLogout}: DashboardProps) {
                 </form>
             )}
 
-            <div style={{marginBottom: '20px'}}>
+            {showToken && (<div style={{marginBottom: '20px'}}>
                 <div style={{padding: '16px', border: '1px solid #ccc', borderRadius: '8px'}}>
                     <h3>Client Registration Token</h3>
                     <p>{showToken}</p>
                 </div>
-            </div>
+            </div>)}
 
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px'}}>
                 {clients.map(client => (
