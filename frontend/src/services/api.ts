@@ -51,6 +51,12 @@ class ApiService {
         });
     }
 
+    async deleteClient(id: number) {
+        return this.request(`/clients/${id}`, {
+            method: 'DELETE',
+        });
+    }
+
     async sendAction(clientId: number, type: string, payload: string, dueAt?: string) {
         return this.request('/actions', {
             method: 'POST',
