@@ -40,6 +40,10 @@ export default function Dashboard({onLogout}: DashboardProps) {
         }
     };
 
+    const handleDeleteClient = (clientId: number) => {
+        setClients(clients.filter(client => client.id !== clientId));
+    };
+
     return (
         <div style={{padding: '20px'}}>
             <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
@@ -78,7 +82,7 @@ export default function Dashboard({onLogout}: DashboardProps) {
 
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px'}}>
                 {clients.map(client => (
-                    <ClientCard key={client.id} client={client}/>
+                    <ClientCard key={client.id} client={client} onDelete={handleDeleteClient}/>
                 ))}
             </div>
 

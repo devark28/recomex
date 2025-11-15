@@ -4,9 +4,10 @@ import apiService from '../services/api';
 
 interface ClientCardProps {
     client: Client;
+    onDelete?: (clientId: number) => void;
 }
 
-export default function ClientCard({client}: ClientCardProps) {
+export default function ClientCard({client, onDelete}: ClientCardProps) {
     const isOnline = client.last_check_in &&
         new Date().getTime() - new Date(client.last_check_in).getTime() < 60000; // 1 minute
 
@@ -20,6 +21,17 @@ export default function ClientCard({client}: ClientCardProps) {
         }
     };
 
+    const handleDelete = async () => {
+        if (confirm(`Are you sure you want to delete "${client.name}"?`)) {
+            try {
+                await apiService.deleteClient(client.id);
+                onDelete?.(client.id);
+            } catch (error) {
+                alert('Failed to delete client');
+            }
+        }
+    };
+
     return (
         <div style={{
             border: '1px solid #ccc',
@@ -28,8 +40,25 @@ export default function ClientCard({client}: ClientCardProps) {
             margin: '10px',
             backgroundColor: isOnline ? '#f0fff0' : '#fff0f0'
         }}>
-            <h3>{client.name}</h3>
-            <p>Status: {isOnline ? '🟢 Online' : '🔴 Offline'}</p>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                <div>
+                    <h3>{client.name}</h3>
+                    <p>Status: {isOnline ? '🟢 Online' : '🔴 Offline'}</p>
+                </div>
+                <button 
+                    onClick={handleDelete}
+                    style={{
+                        backgroundColor: '#ff4444',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        padding: '8px 12px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    🗑️ Delete
+                </button>
+            </div>
 
             <div style={{marginTop: '16px'}}>
                 <h4>Media Controls</h4>
