@@ -29,7 +29,7 @@ class RemoteControlClient {
             const keyPair = await CryptoService.generateKeyPair();
 
             console.log('📡 Registering client with server...');
-            const tempApiService = new ApiService('http://localhost:3000', 0);
+            const tempApiService = new ApiService('https://recomex.bruceshimwa.tech', 0);
             const response = await tempApiService.registerClient(
                 token,
                 keyPair.publicKey,
@@ -38,7 +38,7 @@ class RemoteControlClient {
 
             this.config = {
                 clientId: response.clientId,
-                serverUrl: 'http://localhost:3000',
+                serverUrl: 'https://recomex.bruceshimwa.tech',
                 pollInterval: 5000,
                 enabledModules: {
                     media: true,
