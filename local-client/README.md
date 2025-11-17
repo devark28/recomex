@@ -2,7 +2,32 @@
 
 A TypeScript-based local client for GNOME remote control using CLI tools.
 
-## Prerequisites
+## Installation (Binary)
+
+1. **Download the distribution:**
+   ```bash
+   # Download recomex-client.tar.gz from releases
+   ```
+
+2. **Extract and install:**
+   ```bash
+   tar -xzf recomex-client.tar.gz
+   ./install.sh
+   ```
+
+3. **Register with server:**
+   ```bash
+   recomex-client register <registration-token>
+   ```
+
+4. **Start the client:**
+   ```bash
+   recomex-client start
+   ```
+
+## Development Setup
+
+### Prerequisites
 
 The client uses these CLI tools (install with apt):
 
@@ -11,7 +36,7 @@ sudo apt update
 sudo apt install pamixer brightnessctl playerctl
 ```
 
-## Setup
+### Setup
 
 1. **Check dependencies:**
    ```bash
