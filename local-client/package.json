@@ -8,10 +8,12 @@
     "dev": "tsc --watch",
     "register": "node dist/index.js register",
     "start": "node dist/index.js start",
-    "setup": "./setup.sh"
+    "setup": "./setup.sh",
+    "bundle:pkg": "node bundle-pkg.js"
   },
   "devDependencies": {
     "@types/node": "^20.19.24",
+    "pkg": "^5.8.1",
     "typescript": "^5.3.3"
   }
 }
