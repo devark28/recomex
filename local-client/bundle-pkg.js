@@ -11,7 +11,7 @@ execSync('npm run build', { stdio: 'inherit' });
 
 // Build binary
 console.log('📦 Creating binary...');
-execSync('npx pkg package-pkg.json', { stdio: 'inherit' });
+execSync('npx pkg dist/index.js --target node18-linux-x64 --output bin/recomex-client', { stdio: 'inherit' });
 
 // Copy setup script and create simple installer
 execSync('cp setup.sh bin/', { stdio: 'inherit' });
@@ -44,10 +44,7 @@ execSync('chmod +x bin/install.sh');
 
 // Create distribution archive
 console.log('📦 Creating distribution archive...');
-execSync('tar -czf recomex-client.tar.gz -C bin recomex-client setup.sh install.sh', { stdio: 'inherit' });
-
-// Cleanup
-fs.unlinkSync('package-pkg.json');
+execSync('tar -czf bin/recomex-client.tar.gz -C bin recomex-client setup.sh install.sh', { stdio: 'inherit' });
 
 console.log('✅ Distribution ready: recomex-client.tar.gz');
 console.log('📋 Contents:');

@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "bin": "dist/index.js",
   "pkg": {
-    "targets": [
-      "node22-linux-x64"
-    ],
+    "targets": ["node18-linux-x64"],
     "outputPath": "bin"
   }
 }
