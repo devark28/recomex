@@ -11,7 +11,7 @@ execSync('npm run build', { stdio: 'inherit' });
 
 // Build binary
 console.log('📦 Creating binary...');
-execSync('npx pkg dist/index.js --target node18-linux-x64 --output bin/recomex-client', { stdio: 'inherit' });
+execSync('bun build --compile --target=bun-linux-x64 ./dist/index.js --outfile bin/recomex-client', { stdio: 'inherit' });
 
 // Copy setup script and create simple installer
 execSync('cp setup.sh bin/', { stdio: 'inherit' });
