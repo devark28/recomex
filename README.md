@@ -46,6 +46,8 @@ npm run dev
 
 ### Local Client Setup
 
+See [local-client/README.md](local-client/README.md) for detailed installation instructions.
+
 ```bash
 cd local-client
 npm install
