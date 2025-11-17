@@ -4,6 +4,7 @@ import {readFile, mkdir} from 'fs/promises';
 import {existsSync} from 'fs';
 import {join} from 'path';
 import {homedir} from 'os';
+import {webcrypto} from 'crypto';
 
 const execAsync = promisify(exec);
 
@@ -57,7 +58,7 @@ export class CryptoService {
         const privateKey = (await readFile(this.PRIVATE_KEY_PATH, 'utf8')).replace(/-----BEGIN PRIVATE KEY-----/, '').replace(/-----END PRIVATE KEY-----/, '').replace(/\s+/g, '');
         try {
             // Import the private key
-            const keyData = await crypto.subtle.importKey(
+            const keyData = await webcrypto.subtle.importKey(
                 'pkcs8',
                 Buffer.from(privateKey, 'base64'),
                 {
@@ -70,7 +71,7 @@ export class CryptoService {
 
             // Dencrypt the payload
             const encodedPayload = Buffer.from(encryptedPayload, 'base64');
-            const decrypted = await crypto.subtle.decrypt(
+            const decrypted = await webcrypto.subtle.decrypt(
                 {
                     name: 'RSA-OAEP',
                 },
