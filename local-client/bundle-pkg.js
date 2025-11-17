@@ -9,19 +9,6 @@ console.log('📦 Building recomex-client binary...');
 console.log('🔨 Building TypeScript...');
 execSync('npm run build', { stdio: 'inherit' });
 
-// Create pkg config
-const pkgConfig = {
-  "name": "recomex-client",
-  "version": "1.0.0",
-  "bin": "dist/index.js",
-  "pkg": {
-    "targets": ["node18-linux-x64"],
-    "outputPath": "bin"
-  }
-};
-
-fs.writeFileSync('package-pkg.json', JSON.stringify(pkgConfig, null, 2));
-
 // Build binary
 console.log('📦 Creating binary...');
 execSync('npx pkg package-pkg.json', { stdio: 'inherit' });
