@@ -21,7 +21,7 @@ A remote control system for GNOME environments that allows you to control media 
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 22+
 - PostgreSQL
 - GNOME desktop environment (for local client)
 
